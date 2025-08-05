@@ -1,0 +1,419 @@
+{
+  "name": "şirket teknolojilerini bulma",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "7e3ee8de-2e69-43c0-95a9-3530086da1d3",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1YcbKBKIeNMvI_NXJnMNf7rxXvOvBsbO24AhytVmsxmw",
+          "mode": "list",
+          "cachedResultName": "company domain",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YcbKBKIeNMvI_NXJnMNf7rxXvOvBsbO24AhytVmsxmw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sayfa1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YcbKBKIeNMvI_NXJnMNf7rxXvOvBsbO24AhytVmsxmw/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "CMS & Content Management"
+            },
+            {
+              "lookupColumn": "Analysis & Tracking Tools"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        208,
+        0
+      ],
+      "id": "42203f62-723c-4b79-98ca-3d0ed19d92ba",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xV9Ay4uVUdDv3tPy",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "46e52ee7-3a32-43e1-86ec-7e6ec5479de2",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "url": "=https://r.jina.ai/builtwith.com/ {{ $json[\"Company Domain\"] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer jina_6868edebe48d4c3b9727855f038b0306VawmZaHe0jVoHkKon5HtLZW7uDiu"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        688,
+        16
+      ],
+      "id": "c8f0075f-8942-43e1-8e36-4ad03843ab95",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.data }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Analyze the received content and identify only the technologies used or developed by the company. Focus on extracting product names, tools, platforms, innovations, and technical solutions created or implemented by the company. Do not include general services, business models, or vague marketing terms. Keep the output clean, comma-separated, and relevant to actual technologies (e.g., “Autopilot, Falcon 9, ChatGPT”). Avoid repeating the company name or adding extra commentary. Your task is to return a concise list of technologies."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        896,
+        16
+      ],
+      "id": "1eb7bc8c-c799-44c4-9154-a6df7ef86f71",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        768,
+        224
+      ],
+      "id": "67548cd1-c641-44a7-8e3f-d35a4f1bd3c1",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "JhK6oCCjC77REako",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.3,
+      "position": [
+        1056,
+        224
+      ],
+      "id": "af32d187-5663-4313-b1e2-a45961b05c43",
+      "name": "Code Tool"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"company\": \"string\",\n  \"domain\": \"string\",\n  \"hosting_servers\": \"string\",\n  \"cms_content_management\": \"string\",\n  \"analysis_tracking_tools\": \"string\",\n  \"security_performance\": \"string\",\n  \"country\": \"string\",\n  \"founded_year\": \"integer\",\n  \"linkedin\": \"string\",\n  \"data_source\": \"string\",\n  \"date_added\": \"string (YYYY-MM-DD)\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1168,
+        320
+      ],
+      "id": "10386c68-d6b2-4147-be1c-d661935c655f",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1YcbKBKIeNMvI_NXJnMNf7rxXvOvBsbO24AhytVmsxmw",
+          "mode": "list",
+          "cachedResultName": "company domain",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YcbKBKIeNMvI_NXJnMNf7rxXvOvBsbO24AhytVmsxmw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sayfa1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YcbKBKIeNMvI_NXJnMNf7rxXvOvBsbO24AhytVmsxmw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Data Source": "={{ $json.output.data_source }}",
+            "LinkedIn ": "={{ $json.output.linkedin }}",
+            "Founded Year": "={{ $json.output.founded_year }}",
+            "Country ": "={{ $json.output.country }}",
+            "Security & Performance": "={{ $json.output.security_performance }}",
+            "Analysis & Tracking Tools": "={{ $json.output.analysis_tracking_tools }}",
+            "CMS & Content Management": "={{ $json.output.cms_content_management }}",
+            "Hosting & Servers": "={{ $json.output.hosting_servers }}",
+            "Company Domain": "={{ $json.output.domain }}",
+            "Date Added": "={{ $json.output.date_added }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Company Domain",
+              "displayName": "Company Domain",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Hosting & Servers",
+              "displayName": "Hosting & Servers",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CMS & Content Management",
+              "displayName": "CMS & Content Management",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Analysis & Tracking Tools",
+              "displayName": "Analysis & Tracking Tools",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Security & Performance",
+              "displayName": "Security & Performance",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Country ",
+              "displayName": "Country ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Founded Year",
+              "displayName": "Founded Year",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LinkedIn ",
+              "displayName": "LinkedIn ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Data Source",
+              "displayName": "Data Source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date Added",
+              "displayName": "Date Added",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1248,
+        16
+      ],
+      "id": "e89af8e9-ddd2-4497-a6e2-fa0bc5a8e31b",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xV9Ay4uVUdDv3tPy",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ec1e8b73-f370-4cac-b1eb-a2b9c03a5136",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7e05551839b82cf16e8a44dac6519729d3aab1dbbc80f186b6098099617b652c"
+  },
+  "id": "VeXwm3PEK5wKTL0x",
+  "tags": []
+}
